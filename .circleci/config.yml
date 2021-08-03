@@ -22,5 +22,5 @@ workflows:
             - run: npm run build
             - aws-s3/copy:
                 from: build/
-                to: s3://RCCES-Santa-Cruz-Brochure-Production
+                to: s3://rcces-santa-cruz-brochure-production
                 arguments: --recursive
