@@ -1,0 +1,12 @@
+version: "3"
+services:
+  frontend:
+    container_name: manual-testing-frontend
+    # To get the Dockerfile in that path
+    build: ./
+    # To reload the container with react!
+    volumes:
+      - .:/app
+      - /app/node_modules/
+    ports:
+      - 3000:3000

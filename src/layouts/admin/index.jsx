@@ -1,0 +1,109 @@
+/*!
+
+=========================================================
+* Argon Dashboard PRO React - v1.2.1
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/argon-dashboard-pro-react
+* Copyright 2021 Creative Tim (https://www.creative-tim.com)
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+
+*/
+import React from 'react';
+// react library for routing
+import {
+  useLocation, Route, Switch, Redirect,
+} from 'react-router-dom';
+// core components
+import AdminNavbar from '../../components/navbars/admin';
+import AdminFooter from '../../components/footers/admin';
+import Sidebar from '../../components/sidebar';
+
+import routes from '../../routes';
+
+function Admin() {
+  const [sidenavOpen, setSidenavOpen] = React.useState(true);
+  const location = useLocation();
+  const mainContentRef = React.useRef(null);
+  React.useEffect(() => {
+    document.documentElement.scrollTop = 0;
+    document.scrollingElement.scrollTop = 0;
+    mainContentRef.current.scrollTop = 0;
+  }, [location]);
+  const getRoutes = (routes) => routes.map((prop, key) => {
+    if (prop.collapse) {
+      return getRoutes(prop.views);
+    }
+    if (prop.layout === '/admin') {
+      return (
+        <Route
+          path={prop.layout + prop.path}
+          component={prop.component}
+          key={key}
+        />
+      );
+    }
+    return null;
+  });
+  const getBrandText = () => {
+    for (let i = 0; i < routes.length; i++) {
+      if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
+        return routes[i].name;
+      }
+    }
+    return 'Brand';
+  };
+  // toggles collapse between mini sidenav and normal
+  const toggleSidenav = () => {
+    if (document.body.classList.contains('g-sidenav-pinned')) {
+      document.body.classList.remove('g-sidenav-pinned');
+      document.body.classList.add('g-sidenav-hidden');
+    } else {
+      document.body.classList.add('g-sidenav-pinned');
+      document.body.classList.remove('g-sidenav-hidden');
+    }
+    setSidenavOpen(!sidenavOpen);
+  };
+  const getNavbarTheme = () => (location.pathname.indexOf('admin/alternative-dashboard') === -1
+    ? 'dark'
+    : 'light');
+
+  return (
+    <>
+      <Sidebar
+        routes={routes}
+        toggleSidenav={toggleSidenav}
+        sidenavOpen={sidenavOpen}
+        logo={{
+          innerLink: '/',
+          imgSrc: require('../../assets/img/brand/argon-react.png').default,
+          imgAlt: '...',
+        }}
+      />
+      <div className="main-content" ref={mainContentRef}>
+        <AdminNavbar
+          theme={getNavbarTheme()}
+          toggleSidenav={toggleSidenav}
+          sidenavOpen={sidenavOpen}
+          brandText={getBrandText(location.pathname)}
+        />
+        <Switch>
+          {getRoutes(routes)}
+          <Redirect from="*" to="/admin/dashboard" />
+        </Switch>
+        <AdminFooter />
+      </div>
+      {sidenavOpen ? (
+        <div role="none" className="backdrop d-xl-none" onClick={toggleSidenav} />
+      ) : null}
+    </>
+  );
+}
+
+export default Admin;
