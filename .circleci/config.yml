@@ -4,31 +4,23 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@4.1
-  # The S3 orb will setup the aws-cli and quickly copy or sync anything to s3.
-  # Orbs reduce the amount of configuration required for common tasks.
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/aws-s3
-  # NOTE: Environment variables containing the necessary secrets can be setup in the CircleCI UI
-  # See here https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project
-  aws-s3: circleci/aws-s3@2.0
+  node: circleci/node@4.6.0
+
+jobs:
+  execute:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run: 
+          command: npm run lint
+          name: Lint
+      - run:
+          command: npm run test
+          name: Test
 
 workflows:
-  sample:
+  lint-test-and-deploy:
     jobs:
-      - node/test:
-          version: '15.1'
-          # after the node/test job completes, build the dist packages and save them to a workspace
-          post-steps:
-            - run: npm run build
-            - aws-s3/copy:
-                from: build/
-                to: s3://santacruzqueretaro.com
-                arguments: --recursive
-            - aws-s3/copy:
-                from: build/
-                to: s3://www.santacruzqueretaro.com
-                arguments: --recursive
-            - aws-s3/copy:
-                from: build/
-                to: s3://renovacion.santacruzqueretaro.com
-                arguments: --recursive
+      - execute
